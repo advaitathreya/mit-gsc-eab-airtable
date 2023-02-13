@@ -1,0 +1,4 @@
+*.DS_Store
+__pycache__/
+*.ipynb*
+airtable_keys.yaml
