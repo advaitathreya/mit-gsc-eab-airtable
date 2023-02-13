@@ -20,9 +20,14 @@ def get_record_keys(upl_table_name='', prim_key_col='',
     tab_df = ah.convert_to_dataframe(tab_dict)
 
     if len(tab_df) > 0:
-        return tab_df.reset_index().set_index(prim_key_col)['index'].to_dict()
+        try:
+            return tab_df.reset_index().set_index(prim_key_col)['index'].to_dict()
+        except TypeError:
+            tab_df[prim_key_col] = tab_df[prim_key_col].str[0]
+            return tab_df.reset_index().set_index(prim_key_col)['index'].to_dict()
     else:
         return {}
+
 
 def create_and_upload_df(dataframe, data_idx_col='',
                          upl_table_name='', prim_key_col='',
@@ -53,6 +58,8 @@ def create_and_upload_df(dataframe, data_idx_col='',
         c_record_id_dict = {k: c_record_id_dict[k] for k in c_record_id_dict.keys()}        
         idf[col] = idf[col].apply(lambda row: [c_record_id_dict[v] for v in (row if type(row) == list else [row]) if c_record_id_dict.get(v)])
 
+    idf = idf.replace('', None)
+
     if upload:
         print(f'Updating {old} records, adding {new} new records to {upl_table_name} table.')
         ah.upload_pandas_dataframe(idf, airtable_keys['Tables'][upl_table_name], api_key=api_key, base_id=base_id)
@@ -74,7 +81,7 @@ print('    House Districts')
 idf = hdf[['district']].copy()
 idf['UID'] = 'CD118' + idf['district'].astype(str)
 
-_ = create_and_upload_df(dataframe=idf, data_idx_col='district',
+_ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
                          upl_table_name='Institutions', prim_key_col='UID',  
                          rename_columns_dict={'district': 'Name'},
                          set_column_vals={'Type': 'Legislative Office - House Rep'}
@@ -85,7 +92,7 @@ print('    Senate Seats')
 idf = sdf[['state']].copy()
 idf['UID'] = idf['state'].astype(str)
 
-_ = create_and_upload_df(dataframe=idf, data_idx_col='state',
+_ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
                          upl_table_name='Institutions', prim_key_col='UID',  
                          rename_columns_dict={'state': 'Name'},
                          set_column_vals={'Type': 'Legislative Office - Senator'}
@@ -124,7 +131,7 @@ print('Uploading Congress data')
 print('    House Representatives')
 
 idf = hdf.copy()
-idf['Member'] = sdf['firstname'].astype(str) + ' ' + sdf['lastname'].astype(str)
+idf['Member'] = idf['firstname'].astype(str) + ' ' + idf['lastname'].astype(str)
 idf.drop(columns=['firstname', 'lastname'], inplace=True)
 
 _ = create_and_upload_df(dataframe=idf, data_idx_col='district',
