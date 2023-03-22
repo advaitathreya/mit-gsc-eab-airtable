@@ -6,6 +6,8 @@ udf = pd.read_csv('data/UniversitiesTable.csv')
 hdf = pd.read_csv('data/Congress/HouseReps.csv')
 sdf = pd.read_csv('data/Congress/Senators.csv')
 
+CongressSession = 118
+
 # non-voting reps are designated '98' in NCES but '00' in House Clerk database
 udf.loc[udf['Congressional District (118th)'].str[-2:] == '98', 'Congressional District (118th)'] \
 = udf['Congressional District (118th)'].str[-2:] + '00'
@@ -78,8 +80,9 @@ _ = create_and_upload_df(dataframe=udf[['IPEDS Unique ID', 'Institution']], data
 
 print('    House Districts')
 
+hdf['district'] = hdf['district'].astype(str) + f'_{CongressSession}'
 idf = hdf[['district']].copy()
-idf['UID'] = 'CD118' + idf['district'].astype(str)
+idf['UID'] = idf['district'].astype(str)
 
 _ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
                          upl_table_name='Institutions', prim_key_col='UID',  
@@ -89,6 +92,7 @@ _ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
 
 print('    Senate Seats')
 
+sdf['state'] = sdf['state'].astype(str) + f'_{CongressSession}'
 idf = sdf[['state']].copy()
 idf['UID'] = idf['state'].astype(str)
 
@@ -165,6 +169,9 @@ idf['Senate Seats'] = pd.Series(dtype=object)
 for i in range(len(idf)):
     idf.at[i, 'Senate Seats'] = list(sdf[sdf['state'].str[:2] == idf.loc[i, 'State']]['state'])
 
+idf['Senate Seats'] = idf['Senate Seats'].astype(str) + f'_{CongressSession}'
+idf['Congressional District (118th)'] = idf['Congressional District (118th)'].astype(str) + f'_{CongressSession}'
+
 idf.loc[idf['HBCU'] == 'Yes', 'HBCU'] = True
 idf.loc[idf['HBCU'] == 'No', 'HBCU'] = False
 
@@ -177,4 +184,3 @@ _ = create_and_upload_df(dataframe=idf, data_idx_col='IPEDS Unique ID',
                                         },     
                          drop_columns=['IPEDS Unique ID']
                         )
-
