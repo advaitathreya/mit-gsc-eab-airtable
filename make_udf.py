@@ -109,4 +109,4 @@ udf = pd.merge(df, dfj[['IPEDS Unique ID', 'CD118FP']])
 udf['Congressional District (118th)'] = udf['State'] + udf['CD118FP']
 udf.drop(columns=['CD118FP'], inplace=True)
 
-udf.to_csv('data/UniversitiesTable.csv', index=False)
+udf.to_csv('data/UniversitiesTable.tsv', index=False, sep='\t')

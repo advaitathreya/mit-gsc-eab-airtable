@@ -1,8 +1,9 @@
 import urllib3
 import xmltodict
 import pandas as pd
+import sys
 
-congress_session = 118
+congress_session = int(sys.argv[1])
 
 url = r'https://clerk.house.gov/xml/lists/MemberData.xml'
 fileName = 'data/Congress/MemberData.xml'
@@ -39,7 +40,7 @@ for elem in xml_data['MemberData']['committees']['committee']:
         m.append(new)
 
 cdf = pd.DataFrame(m)
-cdf.to_csv(f'data/Congress/{congress_session}_HouseCommittees.csv', index=False)
+cdf.to_csv(f'data/Congress/{congress_session}_HouseCommittees.tsv', sep='\t', index=False)
 
 m = []
 for elem in xml_data['MemberData']['members']['member']:
@@ -57,28 +58,36 @@ for elem in xml_data['MemberData']['members']['member']:
     except KeyError:
         subcommittees = []
         
-    assignments = []
+    cleadership = []
+    cmembership = []
     for a in committees:
         try:
-            assignments.append((a['@comcode'], a['@rank']))
+            if a['@rank'] == '1':
+                cleadership.append(f"{a['@comcode']}_{congress_session}")
+            else:
+                cmembership.append(f"{a['@comcode']}_{congress_session}")
         except KeyError:
             continue
     for a in subcommittees:
         try:
-            assignments.append((a['@subcomcode'], a['@rank']))
+            if a['@rank'] == '1':
+                cleadership.append(f"{a['@subcomcode']}_{congress_session}")
+            else:
+                cmembership.append(f"{a['@subcomcode']}_{congress_session}")
         except KeyError:
             continue
-
+            
     new = {'district': elem['statedistrict'],
            'firstname': elem['member-info']['firstname'],
            'lastname': elem['member-info']['lastname'],
            'party': elem['member-info']['party'],
-           'committee_assignments': assignments,
+           'committee_leadership': cleadership,
+           'committee_membership': cmembership,
           }
     m.append(new)
 
 mdf = pd.DataFrame(m)
-mdf.to_csv(f'data/Congress/{congress_session}_HouseReps.csv', index=False)
+mdf.to_csv(f'data/Congress/{congress_session}_HouseReps.tsv', sep='\t', index=False)
 
 url = r'https://www.senate.gov/general/contact_information/senators_cfm.xml'
 fileName = 'data/Congress/senators_cfm.xml'
@@ -140,19 +149,24 @@ for abbr in abbrs:
     
     xmls.append(xml_data.copy())
 
-assignments = dict(zip(sen_coms.index, [[] for _ in range(len(sen_coms))]))
+cleadership = dict(zip(sen_coms.index, [[] for _ in range(len(sen_coms))]))
+cmembership = dict(zip(sen_coms.index, [[] for _ in range(len(sen_coms))]))
+comcodes = []
 
 for comm in xmls:
     code = comm['committee_membership']['committees']['committee_code']
     name = comm['committee_membership']['committees']['committee_name']
     members = comm['committee_membership']['committees']['members']
-    comcodes[code] = name
+    comcodes.append({'code': code, 'name': name})
 
     for sen in members['member']:
         mname = sen['name']
         pos = sen['position']
         try:
-            assignments[sen_coms.loc[(sen_coms['firstname'] == mname['first']) & (sen_coms['lastname'] == mname['last'])].index[0]] += [(code, pos)]
+            if pos == 'Member':
+                cmembership[sen_coms.loc[(sen_coms['firstname'] == mname['first']) & (sen_coms['lastname'] == mname['last'])].index[0]] += [f"{code}_{congress_session}"]
+            else:
+                cleadership[sen_coms.loc[(sen_coms['firstname'] == mname['first']) & (sen_coms['lastname'] == mname['last'])].index[0]] += [f"{code}_{congress_session}"]
         except IndexError:
             print(mname)
             
@@ -162,17 +176,20 @@ for comm in xmls:
         subcommittees = []
     
     for subc in subcommittees:
-        code = subc['committee_code']
+        scode = subc['committee_code']
         name = subc['subcommittee_name']
         members = subc['members']
-        comcodes[code] = name
+        comcodes.append({'code': scode, 'name': name, 'parent': code})
         
         if members:
             for sen in members['member']:
                 mname = sen['name']
                 pos = sen['position']
                 try:
-                    assignments[sen_coms.loc[(sen_coms['firstname'] == mname['first']) & (sen_coms['lastname'] == mname['last'])].index[0]] += [(code, pos)]
+                    if pos == 'Member':
+                        cmembership[sen_coms.loc[(sen_coms['firstname'] == mname['first']) & (sen_coms['lastname'] == mname['last'])].index[0]] += [f"{scode}_{congress_session}"]
+                    else:
+                        cleadership[sen_coms.loc[(sen_coms['firstname'] == mname['first']) & (sen_coms['lastname'] == mname['last'])].index[0]] += [f"{scode}_{congress_session}"]
                 except IndexError:
                     print(mname)
 
@@ -183,10 +200,13 @@ for elem in xml_data1['contact_information']['member']:
            'firstname': elem['first_name'],
            'lastname': elem['last_name'],
            'party': elem['party'],
-           'committee_assignments': assignments[elem['bioguide_id']]
+           'committee_leadership': cleadership[elem['bioguide_id']],
+           'committee_membership': cmembership[elem['bioguide_id']],
           }
     m.append(new)
 
 cdf = pd.DataFrame(m)
+cdf.to_csv(f'data/Congress/{congress_session}_Senators.tsv', sep='\t', index=False)
 
-cdf.to_csv(f'data/Congress/{congress_session}_Senators.csv', index=False)
+comcodes = pd.DataFrame(comcodes)
+comcodes.to_csv(f'data/Congress/{congress_session}_SenateCommittees.tsv', sep='\t', index=False)

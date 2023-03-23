@@ -1,0 +1,136 @@
+type	code	name	parent
+standing	AG00	Committee on Agriculture	
+subcommittee	AG03	Nutrition, Foreign Agriculture, and Horticulture	AG00
+subcommittee	AG14	Conservation, Research, and Biotechnology	AG00
+subcommittee	AG15	Forestry	AG00
+subcommittee	AG16	General Farm Commodities, Risk Management, and Credit	AG00
+subcommittee	AG22	Commodity Markets, Digital Assets, and Rural Development	AG00
+subcommittee	AG29	Livestock, Dairy, and Poultry	AG00
+standing	AP00	Committee on Appropriations	
+subcommittee	AP01	Agriculture, Rural Development, Food and Drug Administration, and Related Agencies	AP00
+subcommittee	AP02	Defense	AP00
+subcommittee	AP04	State, Foreign Operations, and Related Programs	AP00
+subcommittee	AP06	Interior, Environment, and Related Agencies	AP00
+subcommittee	AP07	Labor, Health and Human Services, Education, and Related Agencies	AP00
+subcommittee	AP10	Energy and Water Development, and Related Agencies	AP00
+subcommittee	AP15	Homeland Security	AP00
+subcommittee	AP18	Military Construction, Veterans Affairs, and Related Agencies	AP00
+subcommittee	AP19	Commerce, Justice, Science, and Related Agencies	AP00
+subcommittee	AP20	Transportation, Housing and Urban Development, and Related Agencies	AP00
+subcommittee	AP23	Financial Services and General Government	AP00
+subcommittee	AP24	Legislative Branch	AP00
+standing	AS00	Committee on Armed Services	
+subcommittee	AS02	Military Personnel	AS00
+subcommittee	AS03	Readiness	AS00
+subcommittee	AS25	Tactical Air and Land Forces	AS00
+subcommittee	AS26	Intelligence and Special Operations	AS00
+subcommittee	AS28	Seapower and Projection Forces	AS00
+subcommittee	AS29	Strategic Forces	AS00
+subcommittee	AS35	Cyber, Information Technologies, and  Innovation	AS00
+standing	BA00	Committee on Financial Services	
+subcommittee	BA01	National Security, Illicit Finance, and  International Financial Institutions	BA00
+subcommittee	BA04	Housing and Insurance	BA00
+subcommittee	BA09	Oversight and Investigations	BA00
+subcommittee	BA16	Capital Markets	BA00
+subcommittee	BA20	Financial Institutions and Monetary Policy	BA00
+subcommittee	BA21	Digital Assets, Financial Technology and Inclusion	BA00
+standing	BU00	Committee on the Budget	
+standing	ED00	Committee on Education and the Workforce	
+subcommittee	ED02	Health, Employment, Labor, and Pensions	ED00
+subcommittee	ED10	Workforce Protections	ED00
+subcommittee	ED13	Higher Education and Workforce Development	ED00
+subcommittee	ED14	Early Childhood, Elementary, and Secondary Education	ED00
+standing	FA00	Committee on Foreign Affairs	
+subcommittee	FA05	Indo-Pacific	FA00
+subcommittee	FA06	Global Health, Global Human Rights, and International Organizations	FA00
+subcommittee	FA07	Western Hemisphere	FA00
+subcommittee	FA13	Middle East, North Africa, and Central Asia	FA00
+subcommittee	FA14	Europe	FA00
+subcommittee	FA16	Africa	FA00
+subcommittee	FA17	Oversight and Accountability	FA00
+standing	GO00	Committee on Oversight and Accountability	
+subcommittee	GO05	Economic Growth, Energy Policy, and Regulatory Affairs	GO00
+subcommittee	GO06	National Security, the Border, and Foreign Affairs	GO00
+subcommittee	GO12	Cybersecurity, Information Technology, and Government Innovation	GO00
+subcommittee	GO24	Government Operations and the Federal Workforce	GO00
+subcommittee	GO27	Health Care and Financial Services	GO00
+standing	HA00	Committee on House Administration	
+subcommittee	HA06	Oversight	HA00
+subcommittee	HA08	Elections	HA00
+subcommittee	HA27	Modernization	HA00
+standing	HM00	Committee on Homeland Security	
+subcommittee	HM05	Counterterrorism, Law Enforcement, and Intelligence	HM00
+subcommittee	HM07	Transportation and Maritime Security	HM00
+subcommittee	HM08	Cybersecurity and Infrastructure Protection	HM00
+subcommittee	HM09	Oversight, Investigations, and Accountability	HM00
+subcommittee	HM11	Border Security and Enforcement	HM00
+subcommittee	HM12	Emergency Management and Technology	HM00
+standing	IF00	Committee on Energy and Commerce	
+subcommittee	IF02	Oversight and Investigations	IF00
+subcommittee	IF03	Energy, Climate, and Grid Security	IF00
+subcommittee	IF14	Health	IF00
+subcommittee	IF16	Communications and Technology	IF00
+subcommittee	IF17	Innovation, Data, and Commerce	IF00
+subcommittee	IF18	Environment, Manufacturing, and Critical Materials	IF00
+standing	II00	Committee on Natural Resources	
+subcommittee	II06	Energy and Mineral Resources	II00
+subcommittee	II10	Federal Lands	II00
+subcommittee	II13	Water, Wildlife and Fisheries	II00
+subcommittee	II15	Oversight and Investigations	II00
+subcommittee	II24	Indian and Insular Affairs	II00
+standing	JU00	Committee on the Judiciary	
+subcommittee	JU01	Immigration Integrity, Security, and Enforcement	JU00
+subcommittee	JU03	Courts, Intellectual Property, and the Internet	JU00
+subcommittee	JU05	Administrative State, Regulatory Reform, and Antitrust	JU00
+subcommittee	JU08	Crime and Federal Government Surveillance	JU00
+subcommittee	JU10	Constitution and Limited Government	JU00
+subcommittee	JU13	Responsiveness and Accountability to Oversight	JU00
+standing	PW00	Committee on Transportation and Infrastructure	
+subcommittee	PW02	Water Resources and Environment	PW00
+subcommittee	PW05	Aviation	PW00
+subcommittee	PW07	Coast Guard and Maritime Transportation	PW00
+subcommittee	PW12	Highways and Transit	PW00
+subcommittee	PW13	Economic Development, Public Buildings, and Emergency Management	PW00
+subcommittee	PW14	Railroads, Pipelines, and Hazardous Materials	PW00
+standing	RU00	Committee on Rules	
+subcommittee	RU02	Legislative and Budget Process	RU00
+subcommittee	RU04	Rules and Organization of the House	RU00
+standing	SM00	Committee on Small Business	
+subcommittee	SM21	Rural Development, Energy, and Supply Chains	SM00
+subcommittee	SM22	Innovation, Entrepreneurship, and Workforce Development	SM00
+subcommittee	SM23	Contracting and Infrastructure	SM00
+subcommittee	SM24	Oversight, Investigations, and Regulations	SM00
+subcommittee	SM27	Economic Growth, Tax, and Capital Access	SM00
+standing	SO00	Committee on Ethics	
+standing	SY00	Committee on Science, Space, and Technology	
+subcommittee	SY15	Research and Technology	SY00
+subcommittee	SY16	Space and Aeronautics	SY00
+subcommittee	SY18	Environment	SY00
+subcommittee	SY20	Energy	SY00
+subcommittee	SY21	Investigations and Oversight	SY00
+standing	VR00	Committee on Veterans' Affairs	
+subcommittee	VR03	Health	VR00
+subcommittee	VR08	Oversight and Investigations	VR00
+subcommittee	VR09	Disability Assistance and Memorial Affairs	VR00
+subcommittee	VR10	Economic Opportunity	VR00
+subcommittee	VR11	Technology Modernization	VR00
+standing	WM00	Committee on Ways and Means	
+subcommittee	WM01	Social Security	WM00
+subcommittee	WM02	Health	WM00
+subcommittee	WM03	Work and Welfare	WM00
+subcommittee	WM04	Trade	WM00
+subcommittee	WM05	Tax	WM00
+subcommittee	WM06	Oversight	WM00
+select	IG00	Permanent Select Committee on Intelligence	
+subcommittee	IG01	Central Intelligence Agency	IG00
+subcommittee	IG02	National Security Agency and Cyber	IG00
+subcommittee	IG04	Defense Intelligence and Overhead Architecture	IG00
+subcommittee	IG06	National Intelligence Enterprise	IG00
+subcommittee	IG09	Oversight and Investigations	IG00
+select	FD00	Select Subcommittee on the Weaponization of the Federal Government	
+select	VC00	Select Subcommittee on the Coronavirus Pandemic	
+select	ZS00	Select Committee on the  Strategic Competition Between the United States and the Chinese Communist Party	
+joint	EC00	Joint Economic Committee	
+joint	IT00	Joint Committee on Taxation	
+joint	JL00	Joint Committee on the Library	
+joint	JP00	Joint Committee on Printing	
