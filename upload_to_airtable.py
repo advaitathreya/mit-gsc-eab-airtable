@@ -3,8 +3,13 @@ import yaml
 import airtable_helper as ah
 import sys
 import ast
+import datetime
 
 CongressSession = int(sys.argv[1])
+logfile = f'upload_logs/{datetime.datetime.now().isoformat(timespec="hours")}.txt'
+
+with open(logfile, 'w') as f:
+    f.write(f'Last updated: {datetime.datetime.now()}\n\n')
 
 udf = pd.read_csv(f'data/UniversitiesTable.tsv', sep='\t')
 hdf = pd.read_csv(f'data/Congress/{CongressSession}_HouseReps.tsv', sep='\t')
@@ -27,12 +32,12 @@ def get_record_keys(upl_table_name='', prim_key_col='',
 
     if len(tab_df) > 0:
         try:
-            return tab_df.reset_index().set_index(prim_key_col)['index'].to_dict()
+            return tab_df.reset_index().set_index(prim_key_col)['index'].to_dict(), tab_df
         except TypeError:
             tab_df[prim_key_col] = tab_df[prim_key_col].str[0]
-            return tab_df.reset_index().set_index(prim_key_col)['index'].to_dict()
+            return tab_df.reset_index().set_index(prim_key_col)['index'].to_dict(), tab_df
     else:
-        return {}
+        return {}, pd.DataFrame()
 
 
 def create_and_upload_df(dataframe, data_idx_col='',
@@ -41,16 +46,16 @@ def create_and_upload_df(dataframe, data_idx_col='',
                          linked_records={},
                          set_column_vals={},
                          upload=True,
+                         logfile=sys.stdout,
                          api_key=airtable_keys['API']['PAT'], base_id=airtable_keys['Bases']['GSC EAB']):
     
-    u_record_id_dict = get_record_keys(upl_table_name, prim_key_col)
+    u_record_id_dict, udf = get_record_keys(upl_table_name, prim_key_col)
 
     idf = dataframe.copy()
     idf[data_idx_col] = idf[data_idx_col].astype(str)
     idf['Index'] = idf[data_idx_col].map(u_record_id_dict)
     m = idf['Index'].isnull()
     new = m.sum()
-    old = len(idf) - new
     idf.loc[m,'Index'] = [f'newrecord{i}' for i in range(new)]
     idf.set_index('Index', inplace=True)
 
@@ -60,156 +65,199 @@ def create_and_upload_df(dataframe, data_idx_col='',
         idf[k] = v
         
     for col, opt in linked_records.items():
-        c_record_id_dict = get_record_keys(opt[0], opt[1])
-        c_record_id_dict = {k: c_record_id_dict[k] for k in c_record_id_dict.keys()}        
+        c_record_id_dict, _ = get_record_keys(opt[0], opt[1])
+        c_record_id_dict = {k: c_record_id_dict[k] for k in c_record_id_dict.keys()}
         idf[col] = idf[col].apply(lambda row: [c_record_id_dict[v] for v in (row if type(row) == list else [row]) if c_record_id_dict.get(v)])
 
-    idf = idf.replace('', None)
+    udf = udf.loc[idf.index[idf.index.isin(udf.index)], idf.columns[idf.columns.isin(udf.columns)]]
+    udf[idf.columns[~idf.columns.isin(udf.columns)]] = 'NA'
+
+    idf = idf.fillna('')
+    for col in idf.columns:
+        idf[col] = idf[col].apply(lambda y: y if type(y) != list else '' if len(y)==0 else y)
+    
+    udf = udf.fillna('')
+    for col in udf.columns:
+        udf[col] = udf[col].apply(lambda y: y if type(y) != list else '' if len(y)==0 else y)
+
+    diff = udf.ne(idf)
+    changes = idf.loc[diff.any(axis=1)]
+
+    ddf0 = udf.loc[diff.any(axis=1)].reset_index()
+    ddf1 = idf.loc[diff.any(axis=1)].reset_index()
+    ddf2 = diff[diff.any(axis=1)].replace({True: '^^^', False: ''}).reset_index()
+    ddf3 = diff[diff.any(axis=1)].replace({True: '', False: ''}).reset_index()
+    ddf4 = diff[diff.any(axis=1)].replace({True: '', False: ''}).reset_index()
+    ddf0['Index'] = ddf0['Index'] + '_0'
+    ddf1['Index'] = ddf1['Index'] + '_1'
+    ddf2['Index'] = ddf2['Index'] + '_2'
+    ddf3['Index'] = ddf3['Index'] + '_3'
+    ddf4['Index'] = ddf4['Index'] + '_4'
+    
+    diffdf = pd.concat((ddf0, ddf1, ddf2, ddf3, ddf4)).set_index('Index')
+
+    with open(logfile, '+a') as f:
+        f.write(f'\nUpdating {len(changes)} records in {upl_table_name} table.')
+        f.write('\n**Differences to update**\n')
+        f.write(diffdf.sort_index().to_string())
+        f.write('\n')
 
     if upload:
-        print(f'Updating {old} records, adding {new} new records to {upl_table_name} table.')
-        ah.upload_pandas_dataframe(idf, airtable_keys['Tables'][upl_table_name], api_key=api_key, base_id=base_id)
+        print(f'\nUpdating {len(changes)} records in {upl_table_name} table.')
+        ah.upload_pandas_dataframe(changes, airtable_keys['Tables'][upl_table_name], api_key=api_key, base_id=base_id)
+        print('\n\n')
     
-    return idf
+    return idf, udf, changes, diff
 
-# print('Uploading institution names')
 
-# print('    Universities')
+with open(logfile, '+a') as f:
+    f.write('\n\nUploading institution names\n')
+    f.write('\n    Universities\n')
 
-# _ = create_and_upload_df(dataframe=udf[['IPEDS Unique ID', 'Institution']], data_idx_col='IPEDS Unique ID',
-#                          upl_table_name='Institutions', prim_key_col='UID',  
-#                          rename_columns_dict={'Institution': 'Name', 'IPEDS Unique ID': 'UID'},
-#                          set_column_vals={'Type': 'University'}
-#                         )
+_ = create_and_upload_df(dataframe=udf[['IPEDS Unique ID', 'Institution']], data_idx_col='IPEDS Unique ID',
+                         upl_table_name='Institutions', prim_key_col='UID',  
+                         rename_columns_dict={'Institution': 'Name', 'IPEDS Unique ID': 'UID'},
+                         set_column_vals={'Type': 'University'},
+                         logfile=logfile,
+                        )
 
-# print('    House Districts')
+with open(logfile, '+a') as f:
+    f.write('\n    House Districts\n')
 
-# hdf['district'] = hdf['district'].astype(str) + f'_{CongressSession}'
-# idf = hdf[['district']].copy()
-# idf['UID'] = idf['district'].astype(str)
+hdf['district'] = hdf['district'].astype(str) + f'_{CongressSession}'
+idf = hdf[['district']].copy()
+idf['UID'] = idf['district'].astype(str)
 
-# _ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
-#                          upl_table_name='Institutions', prim_key_col='UID',  
-#                          rename_columns_dict={'district': 'Name'},
-#                          set_column_vals={'Type': 'Legislative Office - House Rep'}
-#                         )
+_ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
+                         upl_table_name='Institutions', prim_key_col='UID',  
+                         rename_columns_dict={'district': 'Name'},
+                         set_column_vals={'Type': 'Legislative Office - House Rep'},
+                         logfile=logfile,
+                        )
 
-# print('    Senate Seats')
+with open(logfile, '+a') as f:
+    f.write('\n    Senate Seats\n')
 
 sdf['state'] = sdf['state'].astype(str) + f'_{CongressSession}'
-# idf = sdf[['state']].copy()
-# idf['UID'] = idf['state'].astype(str)
+idf = sdf[['state']].copy()
+idf['UID'] = idf['state'].astype(str)
 
-# _ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
-#                          upl_table_name='Institutions', prim_key_col='UID',  
-#                          rename_columns_dict={'state': 'Name'},
-#                          set_column_vals={'Type': 'Legislative Office - Senator'}
-#                         )
+_ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
+                         upl_table_name='Institutions', prim_key_col='UID',  
+                         rename_columns_dict={'state': 'Name'},
+                         set_column_vals={'Type': 'Legislative Office - Senator'},
+                         logfile=logfile,
+                        )
 
-# print('    House Committees')
+with open(logfile, '+a') as f:
+    f.write('\n    House Committees\n')
 
-# hcdf['code'] = hcdf['code'].astype(str) + f'_{CongressSession}'
-# idf = hcdf[['code', 'name', 'parent']].copy()
-# idf['UID'] = idf['code'].astype(str)
-# idf['parent'] = idf['parent'].astype(str) + f'_{CongressSession}'
+hcdf['code'] = hcdf['code'].astype(str) + f'_{CongressSession}'
+idf = hcdf[['code', 'name', 'parent']].copy()
+idf['UID'] = idf['code'].astype(str)
+idf['parent'] = idf['parent'].astype(str) + f'_{CongressSession}'
 
-# _ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
-#                          upl_table_name='Institutions', prim_key_col='UID',  
-#                          rename_columns_dict={'name': 'Name', 'parent': 'Parent'},
-#                          drop_columns=['code'],
-#                          linked_records={'Parent': ['Institutions', 'UID']},
-#                          set_column_vals={'Type': 'Legislative Office - House Committee'}
-#                         )
+_ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
+                         upl_table_name='Institutions', prim_key_col='UID',  
+                         rename_columns_dict={'name': 'Name', 'parent': 'Parent'},
+                         drop_columns=['code'],
+                         linked_records={'Parent': ['Institutions', 'UID']},
+                         set_column_vals={'Type': 'Legislative Office - House Committee'},
+                         logfile=logfile,
+                        )
 
-# print('    Senate Committees')
+with open(logfile, '+a') as f:
+    f.write('\n    Senate Committees\n')
 
-# scdf['code'] = scdf['code'].astype(str) + f'_{CongressSession}'
-# idf = scdf[['code', 'name', 'parent']].copy()
-# idf['UID'] = idf['code'].astype(str)
-# idf['parent'] = idf['parent'].astype(str) + f'_{CongressSession}'
+scdf['code'] = scdf['code'].astype(str) + f'_{CongressSession}'
+idf = scdf[['code', 'name', 'parent']].copy()
+idf['UID'] = idf['code'].astype(str)
+idf['parent'] = idf['parent'].astype(str) + f'_{CongressSession}'
 
-# _ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
-#                          upl_table_name='Institutions', prim_key_col='UID',  
-#                          rename_columns_dict={'name': 'Name', 'parent': 'Parent'},
-#                          drop_columns=['code'],
-#                          linked_records={'Parent': ['Institutions', 'UID']},
-#                          set_column_vals={'Type': 'Legislative Office - Senate Committee'}
-#                         )
+_ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
+                         upl_table_name='Institutions', prim_key_col='UID',  
+                         rename_columns_dict={'name': 'Name', 'parent': 'Parent'},
+                         drop_columns=['code'],
+                         linked_records={'Parent': ['Institutions', 'UID']},
+                         set_column_vals={'Type': 'Legislative Office - Senate Committee'},
+                         logfile=logfile,
+                        )
 
 
-# print('Uploading people names')
+with open(logfile, '+a') as f:
+    f.write('\n\nUploading people names\n')
+    f.write('\n    House Representatives\n')
 
-# print('    House Representatives')
+idf = hdf[['district', 'firstname', 'lastname', 'committee_leadership', 'committee_membership', 'UID']].copy()
+idf['committee_leadership'] = idf['committee_leadership'].apply(lambda row: ast.literal_eval(row))
+idf['committee_membership'] = idf['committee_membership'].apply(lambda row: ast.literal_eval(row))
 
-# idf = hdf[['district', 'firstname', 'lastname', 'committee_leadership', 'committee_membership']].copy()
-# idf['Name'] = idf['firstname'].astype(str) + ' ' + idf['lastname'].astype(str)
-# idf['committee_leadership'] = idf['committee_leadership'].apply(lambda row: ast.literal_eval(row))
-# idf['committee_membership'] = idf['committee_membership'].apply(lambda row: ast.literal_eval(row))
+_ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
+                         upl_table_name='People', prim_key_col='UID',  
+                         rename_columns_dict={'firstname': 'First Name', 'lastname': 'Last Name', 'district': 'Institutions', 
+                                              'committee_leadership': 'Committee Leadership', 'committee_membership': 'Committee Membership'},
+                         linked_records={'Institutions': ['Institutions', 'Name'], 
+                                         'Committee Leadership': ['Institutions', 'UID'],
+                                         'Committee Membership': ['Institutions', 'UID'],},
+                         set_column_vals={'Role': [['Elected Member']] * len(idf)},
+                         logfile=logfile,
+                        )
 
-# _ = create_and_upload_df(dataframe=idf, data_idx_col='Name',
-#                          upl_table_name='People', prim_key_col='Name',  
-#                          rename_columns_dict={'firstname': 'First Name', 'lastname': 'Last Name', 'district': 'Institutions', 
-#                                               'committee_leadership': 'Committee Leadership', 'committee_membership': 'Committee Membership'},
-#                          drop_columns=['Name'],
-#                          linked_records={'Institutions': ['Institutions', 'Name'], 
-#                                          'Committee Leadership': ['Institutions', 'UID'],
-#                                          'Committee Membership': ['Institutions', 'UID'],},
-#                          set_column_vals={'Role': [['Elected Member']] * len(idf)},
-#                         )
+with open(logfile, '+a') as f:
+    f.write('\n    Senators\n')
 
-# print('    Senators')
+idf = sdf[['state', 'firstname', 'lastname', 'committee_leadership', 'committee_membership', 'UID']].copy()
+idf['committee_leadership'] = idf['committee_leadership'].apply(lambda row: ast.literal_eval(row))
+idf['committee_membership'] = idf['committee_membership'].apply(lambda row: ast.literal_eval(row))
 
-# idf = sdf[['state', 'firstname', 'lastname', 'committee_leadership', 'committee_membership']].copy()
-# idf['Name'] = idf['firstname'].astype(str) + ' ' + idf['lastname'].astype(str)
-# idf['committee_leadership'] = idf['committee_leadership'].apply(lambda row: ast.literal_eval(row))
-# idf['committee_membership'] = idf['committee_membership'].apply(lambda row: ast.literal_eval(row))
+_ = create_and_upload_df(dataframe=idf, data_idx_col='UID',
+                         upl_table_name='People', prim_key_col='UID',  
+                         rename_columns_dict={'firstname': 'First Name', 'lastname': 'Last Name', 'state': 'Institutions',
+                                              'committee_leadership': 'Committee Leadership', 'committee_membership': 'Committee Membership'},
+                         linked_records={'Institutions': ['Institutions', 'Name'],
+                                         'Committee Leadership': ['Institutions', 'UID'],
+                                         'Committee Membership': ['Institutions', 'UID'],},
+                         set_column_vals={'Role': [['Elected Member']] * len(idf)},
+                         logfile=logfile,
+                        )
 
-# _ = create_and_upload_df(dataframe=idf, data_idx_col='Name',
-#                          upl_table_name='People', prim_key_col='Name',  
-#                          rename_columns_dict={'firstname': 'First Name', 'lastname': 'Last Name', 'state': 'Institutions',
-#                                               'committee_leadership': 'Committee Leadership', 'committee_membership': 'Committee Membership'},
-#                          drop_columns=['Name'],
-#                          linked_records={'Institutions': ['Institutions', 'Name'],
-#                                          'Committee Leadership': ['Institutions', 'UID'],
-#                                          'Committee Membership': ['Institutions', 'UID'],},
-#                          set_column_vals={'Role': [['Elected Member']] * len(idf)},
-#                         )
+with open(logfile, '+a') as f:
+    f.write('\n\nUploading Congress data\n')
+    f.write('\n    House Representatives\n')
 
-# print('Uploading Congress data')
+idf = hdf.copy()
+idf['Member'] = idf['UID'].astype(str)
+idf.drop(columns=['firstname', 'lastname', 'committee_leadership', 'committee_membership', 'UID'], inplace=True)
 
-# print('    House Representatives')
+_ = create_and_upload_df(dataframe=idf, data_idx_col='district',
+                         upl_table_name='Congress', prim_key_col='Name',
+                         rename_columns_dict={'district': 'District', 'party': 'Party'},
+                         linked_records={'Member': ['People', 'UID'],
+                                         'District': ['Institutions', 'Name'],
+                                        },
+                         set_column_vals={'Chamber': 'House'},
+                         logfile=logfile,
+                        )
 
-# idf = hdf.copy()
-# idf['Member'] = idf['firstname'].astype(str) + ' ' + idf['lastname'].astype(str)
-# idf.drop(columns=['firstname', 'lastname', 'committee_leadership', 'committee_membership'], inplace=True)
-# idf['district'] = idf['district'].astype(str) + f'_{CongressSession}'
+with open(logfile, '+a') as f:
+    f.write('\n    Senators\n')
 
-# _ = create_and_upload_df(dataframe=idf, data_idx_col='district',
-#                          upl_table_name='Congress', prim_key_col='Name',
-#                          rename_columns_dict={'district': 'District', 'party': 'Party'},
-#                          linked_records={'Member': ['People', 'Name'],
-#                                          'District': ['Institutions', 'Name'],
-#                                         },
-#                          set_column_vals={'Chamber': 'House'}
-#                         )
+idf = sdf.copy()
+idf['Member'] = idf['UID'].astype(str)
+idf.drop(columns=['firstname', 'lastname', 'committee_leadership', 'committee_membership', 'UID'], inplace=True)
 
-# print('    Senators')
+_ = create_and_upload_df(dataframe=idf, data_idx_col='state',
+                         upl_table_name='Congress', prim_key_col='Name',
+                         rename_columns_dict={'state': 'District', 'party': 'Party'},
+                         linked_records={'Member': ['People', 'UID'],
+                                         'District': ['Institutions', 'Name'],
+                                        },
+                         set_column_vals={'Chamber': 'Senate'},
+                         logfile=logfile,
+                        )
 
-# idf = sdf.copy()
-# idf['Member'] = idf['firstname'].astype(str) + ' ' + idf['lastname'].astype(str)
-# idf.drop(columns=['firstname', 'lastname', 'committee_leadership', 'committee_membership'], inplace=True)
-# idf['state'] = idf['state'].astype(str) + f'_{CongressSession}'
-
-# _ = create_and_upload_df(dataframe=idf, data_idx_col='state',
-#                          upl_table_name='Congress', prim_key_col='Name',
-#                          rename_columns_dict={'state': 'District', 'party': 'Party'},
-#                          linked_records={'Member': ['People', 'Name'],
-#                                          'District': ['Institutions', 'Name'],
-#                                         },
-#                          set_column_vals={'Chamber': 'Senate'}
-#                         )
-
-print('Uploading university data')
+with open(logfile, '+a') as f:
+    f.write('\n\nUploading university data\n')
 
 idf = udf.copy()
 idf['Senate Seats'] = pd.Series(dtype=object)
@@ -228,5 +276,6 @@ _ = create_and_upload_df(dataframe=idf, data_idx_col='IPEDS Unique ID',
                                          'Senate Seats': ['Congress', 'Name'],
                                          'Institutions': ['Institutions', 'Name'],
                                         },     
-                         drop_columns=['IPEDS Unique ID']
+                         drop_columns=['IPEDS Unique ID'],
+                         logfile=logfile,
                         )

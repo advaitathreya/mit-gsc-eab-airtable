@@ -1,5 +1,5 @@
 code	name	parent
-SSCM00	Committee on Commerce, Science, and Transportation	
+SSCM00	Committee on Commerce, Science, and Transportation	SSCM00
 SSCM33	Subcommittee on Aviation Safety, Operations, and Innovation	SSCM00
 SSCM34	Subcommittee on Communications, Media, and Broadband	SSCM00
 SSCM35	Subcommittee on Consumer Protection, Product Safety, and Data Security	SSCM00
@@ -7,7 +7,7 @@ SSCM36	Subcommittee on Oceans, Fisheries, Climate Change, and Manufacturing	SSCM
 SSCM37	Subcommittee on Space and Science	SSCM00
 SSCM38	Subcommittee on Surface Transportation, Maritime, Freight, and Ports	SSCM00
 SSCM39	Subcommittee on Tourism, Trade, and Export Promotion	SSCM00
-SSAP00	Committee on Appropriations	
+SSAP00	Committee on Appropriations	SSAP00
 SSAP01	Subcommittee on Agriculture, Rural Development, Food and Drug Administration, and Related Agencies	SSAP00
 SSAP16	Subcommittee on Commerce, Justice, Science, and Related Agencies	SSAP00
 SSAP02	Subcommittee on Defense	SSAP00
@@ -20,23 +20,23 @@ SSAP08	Subcommittee on Legislative Branch	SSAP00
 SSAP19	Subcommittee on Military Construction, Veterans Affairs, and Related Agencies	SSAP00
 SSAP20	Subcommittee on State, Foreign Operations, and Related Programs	SSAP00
 SSAP24	Subcommittee on Transportation, Housing and Urban Development, and Related Agencies	SSAP00
-SSHR00	Committee on Health, Education, Labor, and Pensions	
+SSHR00	Committee on Health, Education, Labor, and Pensions	SSHR00
 SSHR09	Subcommittee on Children and Families	SSHR00
 SSHR11	Subcommittee on Employment and Workplace Safety	SSHR00
 SSHR12	Subcommittee on Primary Health and Retirement Security	SSHR00
-SSEG00	Committee on Energy and Natural Resources	
-SSEG01	Subcommittee on Energy	SSEG00
-SSEG04	Subcommittee on National Parks	SSEG00
-SSEG03	Subcommittee on Public Lands, Forests, and Mining	SSEG00
-SSEG07	Subcommittee on Water and Power	SSEG00
-SSFI00	Committee on Finance	
+SSFI00	Committee on Finance	SSFI00
 SSFI12	Subcommittee on Energy, Natural Resources, and Infrastructure	SSFI00
 SSFI14	Subcommittee on Fiscal Responsibility and Economic Growth	SSFI00
 SSFI10	Subcommittee on Health Care	SSFI00
 SSFI13	Subcommittee on International Trade, Customs, and Global Competitiveness	SSFI00
 SSFI02	Subcommittee on Social Security, Pensions, and Family Policy	SSFI00
 SSFI11	Subcommittee on Taxation and IRS Oversight	SSFI00
-SSFR00	Committee on Foreign Relations	
+SSEG00	Committee on Energy and Natural Resources	SSEG00
+SSEG01	Subcommittee on Energy	SSEG00
+SSEG04	Subcommittee on National Parks	SSEG00
+SSEG03	Subcommittee on Public Lands, Forests, and Mining	SSEG00
+SSEG07	Subcommittee on Water and Power	SSEG00
+SSFR00	Committee on Foreign Relations	SSFR00
 SSFR09	Subcommittee on Africa and Global Health Policy	SSFR00
 SSFR02	Subcommittee on East Asia, the Pacific, and International Cybersecurity Policy	SSFR00
 SSFR01	Subcommittee on Europe and Regional Security Cooperation	SSFR00
@@ -44,16 +44,15 @@ SSFR15	Subcommittee on Multilateral International Development, Multilateral Inst
 SSFR07	Subcommittee on Near East, South Asia, Central Asia, and Counterterrorism	SSFR00
 SSFR14	Subcommittee on State Department and USAID Management, International Operations, and Bilateral International Development	SSFR00
 SSFR06	Subcommittee on Western Hemisphere, Transnational Crime, Civilian Security, Democracy, Human Rights, and Global Women's Issues	SSFR00
-SSAF00	Committee on Agriculture, Nutrition, and Forestry	
+SLIN00	Select Committee on Intelligence	SLIN00
+SSAF00	Committee on Agriculture, Nutrition, and Forestry	SSAF00
 SSAF13	Subcommittee on Commodities, Risk Management, and Trade	SSAF00
 SSAF14	Subcommittee on Conservation, Climate, Forestry, and Natural Resources	SSAF00
 SSAF16	Subcommittee on Food and Nutrition, Specialty Crops, Organics, and Research	SSAF00
 SSAF17	Subcommittee on Livestock, Dairy, Poultry, Local Food Systems, and Food Safety and Security	SSAF00
 SSAF15	Subcommittee on Rural Development and Energy	SSAF00
-SLIN00	Select Committee on Intelligence	
-SSRA00	Committee on Rules and Administration	
-SSVA00	Committee on Veterans' Affairs	
-SSJU00	Committee on the Judiciary	
+SSRA00	Committee on Rules and Administration	SSRA00
+SSJU00	Committee on the Judiciary	SSJU00
 SSJU01	Subcommittee on Competition Policy, Antitrust, and Consumer Rights	SSJU00
 SSJU22	Subcommittee on Criminal Justice and Counterterrorism	SSJU00
 SSJU25	Subcommittee on Federal Courts, Oversight, Agency Action, and Federal Rights	SSJU00
@@ -62,8 +61,10 @@ SSJU04	Subcommittee on Immigration, Citizenship, and Border Safety	SSJU00
 SSJU26	Subcommittee on Intellectual Property	SSJU00
 SSJU28	Subcommittee on Privacy, Technology, and the Law	SSJU00
 SSJU21	Subcommittee on the Constitution	SSJU00
-JCSE00	Commission on Security and Cooperation in Europe	
-SSAS00	Committee on Armed Services	
+SSVA00	Committee on Veterans' Affairs	SSVA00
+JCSE00	Commission on Security and Cooperation in Europe	JCSE00
+SCNC00	United States Senate Caucus on International Narcotics Control	SCNC00
+SSAS00	Committee on Armed Services	SSAS00
 SSAS14	Subcommittee on Airland	SSAS00
 SSAS21	Subcommittee on Cybersecurity	SSAS00
 SSAS20	Subcommittee on Emerging Threats and Capabilities	SSAS00
@@ -71,28 +72,27 @@ SSAS17	Subcommittee on Personnel	SSAS00
 SSAS15	Subcommittee on Readiness and Management Support	SSAS00
 SSAS13	Subcommittee on Seapower	SSAS00
 SSAS16	Subcommittee on Strategic Forces	SSAS00
-SCNC00	United States Senate Caucus on International Narcotics Control	
-SPAG00	Special Committee on Aging	
-SSGA00	Committee on Homeland Security and Governmental Affairs	
+SPAG00	Special Committee on Aging	SPAG00
+SSGA00	Committee on Homeland Security and Governmental Affairs	SSGA00
 SSGA01	Permanent Subcommittee on Investigations	SSGA00
 SSGA20	Subcommittee on Emerging Threats and Spending Oversight	SSGA00
 SSGA22	Subcommittee on Government Operations and Border Management	SSGA00
-SSSB00	Committee on Small Business and Entrepreneurship	
-SSEV00	Committee on Environment and Public Works	
+SSSB00	Committee on Small Business and Entrepreneurship	SSSB00
+SSEV00	Committee on Environment and Public Works	SSEV00
 SSEV09	Subcommittee on Chemical Safety, Waste Management, Environmental Justice, and Regulatory Oversight	SSEV00
 SSEV10	Subcommittee on Clean Air, Climate, and Nuclear Safety	SSEV00
 SSEV15	Subcommittee on Fisheries, Water, and Wildlife	SSEV00
 SSEV08	Subcommittee on Transportation and Infrastructure	SSEV00
-SSBU00	Committee on the Budget	
-SSBK00	Committee on Banking, Housing, and Urban Affairs	
+SSBU00	Committee on the Budget	SSBU00
+SSBK00	Committee on Banking, Housing, and Urban Affairs	SSBK00
 SSBK12	Subcommittee on Economic Policy	SSBK00
 SSBK08	Subcommittee on Financial Institutions and Consumer Protection	SSBK00
 SSBK09	Subcommittee on Housing, Transportation, and Community Development	SSBK00
 SSBK05	Subcommittee on National Security and  International Trade and Finance	SSBK00
 SSBK04	Subcommittee on Securities, Insurance, and Investment	SSBK00
-JSTX00	Joint Committee on Taxation	
-SLIA00	Committee on Indian Affairs	
-SLET00	Select Committee on Ethics	
-JSEC00	Joint Economic Committee	
-JSPR00	Joint Committee on Printing	
-JSLC00	Joint Committee on the Library	
+JSTX00	Joint Committee on Taxation	JSTX00
+SLIA00	Committee on Indian Affairs	SLIA00
+SLET00	Select Committee on Ethics	SLET00
+JSEC00	Joint Economic Committee	JSEC00
+JSPR00	Joint Committee on Printing	JSPR00
+JSLC00	Joint Committee on the Library	JSLC00

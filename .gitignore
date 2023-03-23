@@ -3,3 +3,4 @@ __pycache__/
 *.ipynb*
 airtable_keys.yaml
 *.zip
+upload_logs/

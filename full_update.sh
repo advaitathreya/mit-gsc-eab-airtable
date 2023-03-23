@@ -9,11 +9,11 @@ conda activate geo
 
 congress_session=118
 
-# echo "Downloading all data"
+echo "Downloading all data"
 # echo "    NCES data"
 # python download_nces.py
-# echo "    Congress data"
-# python download_congress.py $congress_session
+echo "    Congress data"
+python download_congress.py $congress_session
 # echo "    Census data"
 # python download_census.py
 # echo "All data downloaded"

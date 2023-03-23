@@ -21,6 +21,7 @@ assert congress_session_downloaded == congress_session
 m = []
 for elem in xml_data['MemberData']['committees']['committee']:
     new = {'type': elem['@type'],
+           'parent': elem['@comcode'],
            'code': elem['@comcode'],
            'name': elem['committee-fullname'],
           }
@@ -83,6 +84,7 @@ for elem in xml_data['MemberData']['members']['member']:
            'party': elem['member-info']['party'],
            'committee_leadership': cleadership,
            'committee_membership': cmembership,
+           'UID': elem['member-info']['bioguideID'],
           }
     m.append(new)
 
@@ -157,7 +159,7 @@ for comm in xmls:
     code = comm['committee_membership']['committees']['committee_code']
     name = comm['committee_membership']['committees']['committee_name']
     members = comm['committee_membership']['committees']['members']
-    comcodes.append({'code': code, 'name': name})
+    comcodes.append({'code': code, 'name': name, 'parent': code})
 
     for sen in members['member']:
         mname = sen['name']
@@ -202,6 +204,7 @@ for elem in xml_data1['contact_information']['member']:
            'party': elem['party'],
            'committee_leadership': cleadership[elem['bioguide_id']],
            'committee_membership': cmembership[elem['bioguide_id']],
+           'UID': elem['bioguide_id'],
           }
     m.append(new)
 
